@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/github/aeldemery/gtk4_shadertoy">
+        <file>alienplanet.glsl</file>
+        <file>cogs.glsl</file>
+        <file>glowingstars.glsl</file>
+        <file>mandelbrot.glsl</file>
+        <file>neon.glsl</file>
+    </gresource>
+</gresources>
