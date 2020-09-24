@@ -25,7 +25,6 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
         aspect_frame.set_child (shadertoy);
 
         var sw = new Gtk.ScrolledWindow ();
-        assert_nonnull (sw);
         sw.min_content_height = 250;
         sw.has_frame = true;
         sw.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
