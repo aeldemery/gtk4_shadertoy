@@ -2,71 +2,62 @@
 
 public class Gtk4Demo.ShaderToy : Gtk.GLArea {
     const string default_image_shader =
-        """
-    void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-        // Normalized pixel coordinates (from 0 to 1)
-        vec2 uv = fragCoord/iResolution.xy;
-    
-       // Time varying pixel color
-        vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
-    
-        if (distance(iMouse.xy, fragCoord.xy) <= 10.0) {
-            col = vec3(0.0);
-        }
-    
-        // Output to screen
-        fragColor = vec4(col,1.0);
+"""void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = fragCoord/iResolution.xy;
+
+    // Time varying pixel color
+    vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
+
+    if (distance(iMouse.xy, fragCoord.xy) <= 10.0) {
+        col = vec3(0.0);
     }
-    """;
+
+    // Output to screen
+    fragColor = vec4(col,1.0);
+}""";
 
     const string shadertoy_vertex_shader =
-        """
-    #version 150 core
-    
-    uniform vec3 iResolution;
-    
-    in vec2 position;
-    out vec2 fragCoord;
-    
-    void main() {
-        gl_Position = vec4(position, 0.0, 1.0);
-    
-        // Convert from OpenGL coordinate system (with origin in center
-        // of screen) to Shadertoy/texture coordinate system (with origin
-        // in lower left corner)\n"
-        fragCoord = (gl_Position.xy + vec2(1.0)) / vec2(2.0) * iResolution.xy;
-    }
-    """;
+"""#version 150 core
+
+uniform vec3 iResolution;
+
+in vec2 position;
+out vec2 fragCoord;
+
+void main() {
+    gl_Position = vec4(position, 0.0, 1.0);
+    // Convert from OpenGL coordinate system (with origin in center
+    // of screen) to Shadertoy/texture coordinate system (with origin
+    // in lower left corner)\n"
+    fragCoord = (gl_Position.xy + vec2(1.0)) / vec2(2.0) * iResolution.xy;
+}""";
 
     const string fragment_prefix =
-        """
-    #version 150 core
-    
-    uniform vec3      iResolution;           // viewport resolution (in pixels)
-    uniform float     iTime;                 // shader playback time (in seconds)
-    uniform float     iTimeDelta;            // render time (in seconds)
-    uniform int       iFrame;                // shader playback frame
-    uniform float     iChannelTime[4];       // channel playback time (in seconds)
-    uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
-    uniform vec4      iMouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
-    uniform sampler2D iChannel0;
-    uniform sampler2D iChannel1;
-    uniform sampler2D iChannel2;
-    uniform sampler2D iChannel3;
-    uniform vec4      iDate;                 // (year, month, day, time in seconds)
-    uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
-    
-    in vec2 fragCoord;
-    out vec4 fragColor;
-    """;
+"""#version 150 core
+
+uniform vec3      iResolution;           // viewport resolution (in pixels)
+uniform float     iTime;                 // shader playback time (in seconds)
+uniform float     iTimeDelta;            // render time (in seconds)
+uniform int       iFrame;                // shader playback frame
+uniform float     iChannelTime[4];       // channel playback time (in seconds)
+uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
+uniform vec4      iMouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D iChannel2;
+uniform sampler2D iChannel3;
+uniform vec4      iDate;                 // (year, month, day, time in seconds)
+uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
+
+in vec2 fragCoord;
+out vec4 fragColor;""";
 
     // Fragment shader suffix
     const string fragment_suffix =
-        """
-    void main() {
-        mainImage(fragColor, fragCoord);
-    }
-    """;
+"""void main() {
+    mainImage(fragColor, fragCoord);
+}""";
 
 
     private string _image_shader;
@@ -123,7 +114,7 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
             try {
                 var shader_resource = GLib.resources_lookup_data (file_name,
                                                                   GLib.ResourceLookupFlags.NONE);
-                var shader = (string ? ) shader_resource.get_data ();
+                var shader = (string) shader_resource.get_data ();
                 this.image_shader = shader;
             } catch (Error error) {
                 critical ("Couldn't load resource");
@@ -277,14 +268,12 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
     }
 
     void init_shaders (string vertex_source, string fragment_source) throws ShaderError {
-        print ("!============ Init Shader ============!\n");
         GL.GLuint init_vertex, init_fragment = 0;
         GL.GLuint init_program = 0;
-        int status = 0;
+        int[] status = {0};
 
         try {
             create_shader (out init_vertex, GL.GL_VERTEX_SHADER, vertex_source);
-            print ("init_vertex %i\n", (int) init_vertex);
             if (init_vertex == 0) {
                 critical ("Couldn't create vertex shader.\n");
             }
@@ -305,8 +294,8 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
 
         GL.glLinkProgram (init_program);
 
-        GL.glGetProgramiv (init_program, GL.GL_LINK_STATUS, { status });
-        if (status == GL.GL_FALSE) {
+        GL.glGetProgramiv (init_program, GL.GL_LINK_STATUS, status);
+        if (status[0] == GL.GL_FALSE) {
             GL.GLint log_len = 0;
 
             GL.glGetProgramiv (init_program, GL.GL_INFO_LOG_LENGTH, { log_len });
@@ -314,7 +303,6 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
             GL.GLubyte[] buffer = new GL.GLubyte[log_len];
 
             GL.glGetProgramInfoLog (init_program, log_len, null, buffer);
-            print ("Buffer %s\n", (string) buffer);
 
             GL.glDeleteProgram (init_program);
             GL.glDeleteShader (init_vertex);
@@ -340,23 +328,21 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
     }
 
     void create_shader (out GL.GLuint shader, int type, string src) throws ShaderError {
-        print ("!=========== Create Shader =============!\n");
-        // GL.GLuint shader;
-        int status = 0;
+        shader = 0;
+        int[] status = {0};
         string[] src_array = { src, null };
-    
+
         shader = GL.glCreateShader (type);
-        print ("Shader Num %u \n", shader);
+
         GL.glShaderSource (shader, 1, src_array, null);
         GL.glCompileShader (shader);
 
-        GL.glGetShaderiv (shader, GL.GL_COMPILE_STATUS, { status });
-        if (status == GL.GL_FALSE) {
-            print ("Compilation error, Status is False\n");
+        GL.glGetShaderiv (shader, GL.GL_COMPILE_STATUS, status);
+        if (status[0] == GL.GL_FALSE) {
             int log_len = 0;
             GL.glGetShaderiv (shader, GL.GL_INFO_LOG_LENGTH, { log_len });
             GL.GLubyte[] buffer = new GL.GLubyte[log_len];
-            GL.glGetShaderInfoLog (shader, log_len, null, buffer);
+            GL.glGetShaderInfoLog (shader, log_len, { log_len }, buffer);
             GL.glDeleteShader (shader);
 
             throw new ShaderError.COMPILATION_ERROR ("Compile failure in %s shader:\n%s",
