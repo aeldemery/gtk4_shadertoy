@@ -1,8 +1,8 @@
 add_project_arguments([
     '--vapidir', join_paths(meson.current_source_dir(), 'vapi'),
-    #'--pkg', 'gl',      # those are handled extra, because they
-    '--pkg', 'epoxy',   # are in the custom vapi directory of the project
-    #'--pkg', 'config'
+    #'--pkg', 'gl',
+    '--pkg', 'epoxy',
+    '--save-temps',
     ],
     language: 'vala'
 )
