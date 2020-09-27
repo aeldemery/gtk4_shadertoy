@@ -1,8 +1,7 @@
-
-
 public class Gtk4Demo.ShaderToy : Gtk.GLArea {
     const string default_image_shader =
-"""void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+"""
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // Normalized pixel coordinates (from 0 to 1)
     vec2 uv = fragCoord/iResolution.xy;
 
@@ -15,10 +14,12 @@ public class Gtk4Demo.ShaderToy : Gtk.GLArea {
 
     // Output to screen
     fragColor = vec4(col,1.0);
-}""";
+}
+""";
 
     const string shadertoy_vertex_shader =
-"""#version 150 core
+"""
+#version 150 core
 
 uniform vec3 iResolution;
 
@@ -31,10 +32,12 @@ void main() {
     // of screen) to Shadertoy/texture coordinate system (with origin
     // in lower left corner)\n"
     fragCoord = (gl_Position.xy + vec2(1.0)) / vec2(2.0) * iResolution.xy;
-}""";
+}
+""";
 
     const string fragment_prefix =
-"""#version 150 core
+"""
+#version 150 core
 
 uniform vec3      iResolution;           // viewport resolution (in pixels)
 uniform float     iTime;                 // shader playback time (in seconds)
@@ -51,13 +54,16 @@ uniform vec4      iDate;                 // (year, month, day, time in seconds)
 uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
 
 in vec2 fragCoord;
-out vec4 fragColor;""";
+out vec4 fragColor;
+""";
 
     // Fragment shader suffix
     const string fragment_suffix =
-"""void main() {
+"""
+void main() {
     mainImage(fragColor, fragCoord);
-}""";
+}
+""";
 
 
     private string _image_shader;
@@ -89,11 +95,11 @@ out vec4 fragColor;""";
     GL.GLuint program;
 
     /* Location of uniforms for program */
-    GL.GLuint resolution_location;
-    GL.GLuint time_location;
-    GL.GLuint timedelta_location;
-    GL.GLuint frame_location;
-    GL.GLuint mouse_location;
+    GL.GLint resolution_location;
+    GL.GLint time_location;
+    GL.GLint timedelta_location;
+    GL.GLint frame_location;
+    GL.GLint mouse_location;
 
     /* Current uniform values */
     float resolution[3];
@@ -177,15 +183,15 @@ out vec4 fragColor;""";
 
         /* Update uniforms */
         if (this.resolution_location != -1)
-            GL.glUniform3fv ((GL.GLint) this.resolution_location, 1, this.resolution);
+            GL.glUniform3fv (this.resolution_location, 1, this.resolution);
         if (this.time_location != -1)
-            GL.glUniform1f ((GL.GLint) this.time_location, this.time);
+            GL.glUniform1f (this.time_location, this.time);
         if (this.timedelta_location != -1)
-            GL.glUniform1f ((GL.GLint) this.timedelta_location, this.timedelta);
+            GL.glUniform1f (this.timedelta_location, this.timedelta);
         if (this.frame_location != -1)
-            GL.glUniform1i ((GL.GLint) this.frame_location, this.frame);
+            GL.glUniform1i (this.frame_location, this.frame);
         if (this.mouse_location != -1)
-            GL.glUniform4fv ((GL.GLint) this.mouse_location, 1, this.mouse);
+            GL.glUniform4fv (this.mouse_location, 1, this.mouse);
 
         /* Use the vertices in our buffer */
         GL.glBindBuffer (GL.GL_ARRAY_BUFFER, this.buffer);
@@ -232,10 +238,14 @@ out vec4 fragColor;""";
         if (this.get_error () != null)
             return;
 
-        GL.glGenVertexArrays (1, { this.vao });
+        GL.GLuint[] local_vao = {this.vao};
+        GL.glGenVertexArrays (1, local_vao);
+        this.vao = local_vao[0];
         GL.glBindVertexArray (this.vao);
 
-        GL.glGenBuffers (1, { this.buffer });
+        GL.GLuint[] local_buffer = {this.buffer};
+        GL.glGenBuffers (1, local_buffer);
+        this.buffer = local_buffer[0];
         GL.glBindBuffer (GL.GL_ARRAY_BUFFER, this.buffer);
         GL.glBufferData (
             GL.GL_ARRAY_BUFFER,
@@ -268,7 +278,7 @@ out vec4 fragColor;""";
     }
 
     void init_shaders (string vertex_source, string fragment_source) throws ShaderError {
-        GL.GLuint init_vertex, init_fragment = 0;
+        GL.GLuint init_vertex = 0, init_fragment = 0;
         GL.GLuint init_program = 0;
         int[] status = {0};
 
@@ -296,13 +306,13 @@ out vec4 fragColor;""";
 
         GL.glGetProgramiv (init_program, GL.GL_LINK_STATUS, status);
         if (status[0] == GL.GL_FALSE) {
-            GL.GLint log_len = 0;
+            GL.GLint[] log_len = {0};
 
-            GL.glGetProgramiv (init_program, GL.GL_INFO_LOG_LENGTH, { log_len });
+            GL.glGetProgramiv (init_program, GL.GL_INFO_LOG_LENGTH, log_len);
 
-            GL.GLubyte[] buffer = new GL.GLubyte[log_len];
+            GL.GLubyte[] buffer = new GL.GLubyte[log_len[0]];
 
-            GL.glGetProgramInfoLog (init_program, log_len, null, buffer);
+            GL.glGetProgramInfoLog (init_program, log_len[0], log_len, buffer);
 
             GL.glDeleteProgram (init_program);
             GL.glDeleteShader (init_vertex);
@@ -339,10 +349,10 @@ out vec4 fragColor;""";
 
         GL.glGetShaderiv (shader, GL.GL_COMPILE_STATUS, status);
         if (status[0] == GL.GL_FALSE) {
-            int log_len = 0;
-            GL.glGetShaderiv (shader, GL.GL_INFO_LOG_LENGTH, { log_len });
-            GL.GLubyte[] buffer = new GL.GLubyte[log_len];
-            GL.glGetShaderInfoLog (shader, log_len, { log_len }, buffer);
+            int[] log_len = {0};
+            GL.glGetShaderiv (shader, GL.GL_INFO_LOG_LENGTH, log_len);
+            GL.GLubyte[] buffer = new GL.GLubyte[log_len[0]];
+            GL.glGetShaderInfoLog (shader, log_len[0], log_len, buffer);
             GL.glDeleteShader (shader);
 
             throw new ShaderError.COMPILATION_ERROR ("Compile failure in %s shader:\n%s",
