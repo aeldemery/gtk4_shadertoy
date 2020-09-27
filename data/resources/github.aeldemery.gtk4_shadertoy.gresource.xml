@@ -7,5 +7,6 @@
         <file>mandelbrot.glsl</file>
         <file>neon.glsl</file>
         <file>happyjumping.glsl</file>
+        <file>proteanclouds.glsl</file>
     </gresource>
 </gresources>

@@ -15,10 +15,11 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
         resource_paths = {
             "/github/aeldemery/gtk4_shadertoy/alienplanet.glsl",
             "/github/aeldemery/gtk4_shadertoy/mandelbrot.glsl",
-            "/github/aeldemery/gtk4_shadertoy/neon.glsl",
+            // "/github/aeldemery/gtk4_shadertoy/neon.glsl",
             "/github/aeldemery/gtk4_shadertoy/cogs.glsl",
             "/github/aeldemery/gtk4_shadertoy/glowingstars.glsl",
-            "/github/aeldemery/gtk4_shadertoy/happyjumping.glsl"
+            "/github/aeldemery/gtk4_shadertoy/happyjumping.glsl",
+            "/github/aeldemery/gtk4_shadertoy/proteanclouds.glsl"
         };
 
         title = "Shadertoy :)";
