@@ -7,7 +7,7 @@
 
 ## About <a name = "about"></a>
 
-A trial to implement gtk4 shadertoy demo in vala. Currently it doesn't work :(.
+A trial to implement gtk4 shadertoy demo in vala. ~~Currently it doesn't work :(~~. It slowly come to life :).
 
 ## Screenshot <a name = "screenshot"></a>
 
