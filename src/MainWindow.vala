@@ -2,6 +2,12 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
     string[] resource_paths;
     Gtk.TextView textview;
     ShaderToy shadertoy;
+    ShaderToy preview_toy;
+    Gtk.Button toy_button;
+    Gtk.Button clear_button;
+    Gtk.Button refresh_button;
+    Gtk.Box toys_box;
+    string current_shader_text;
 
     public MainWindow (Gtk.Application app) {
         Object (application: app);
@@ -55,6 +61,7 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
         sw.set_child (textview);
 
         textview.buffer.text = shadertoy.image_shader;
+        textview.buffer.changed.connect (buffer_changed_cb);
 
         var centerbox = new Gtk.CenterBox ();
         box.append (centerbox);
@@ -62,40 +69,49 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
         var hbox = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
         centerbox.set_start_widget (hbox);
 
-        var refresh_button = new Gtk.Button.from_icon_name ("view-refresh-symbolic");
+        refresh_button = new Gtk.Button.from_icon_name ("view-refresh-symbolic");
         refresh_button.tooltip_text = "Restart the Demo";
         refresh_button.valign = Gtk.Align.CENTER;
         refresh_button.clicked.connect (refresh_clicked_cb);
 
         hbox.append (refresh_button);
 
-        var clear_button = new Gtk.Button.from_icon_name ("edit-clear-all-symbolic");
+        clear_button = new Gtk.Button.from_icon_name ("edit-clear-all-symbolic");
         clear_button.tooltip_text = "Clear the text view";
         clear_button.valign = Gtk.Align.CENTER;
         clear_button.clicked.connect (clear_clicked_cb);
 
         hbox.append (clear_button);
 
-        var toys_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+        toys_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
         centerbox.set_end_widget (toys_box);
 
         foreach (var path in resource_paths) {
-            var toy_button = new Gtk.Button ();
-            var toy = new ShaderToy (path);
-            toy.set_size_request (64, 36);
-
-            toy_button.clicked.connect (() => {
-                //textview.buffer.text = toy.image_shader;
-            });
-            toy_button.set_child (toy);
+            toy_button = new Gtk.Button ();
+            preview_toy = new ShaderToy (path);
+            preview_toy.set_size_request (64, 36);
+            toy_button.set_child (preview_toy);
             toys_box.append (toy_button);
+            toy_button.clicked.connect (toy_button_clicked_cb);
         }
     }
 
-
-    void refresh_clicked_cb () {
+    void buffer_changed_cb (Gtk.TextBuffer buffer) {
+        current_shader_text = buffer.text;
+        shadertoy.image_shader = current_shader_text;
     }
 
-    void clear_clicked_cb () {
+    void toy_button_clicked_cb (Gtk.Button button) {
+        current_shader_text = ((ShaderToy) (button.child)).image_shader;
+        textview.buffer.text = current_shader_text;
+        shadertoy.image_shader = current_shader_text;
+    }
+
+    void refresh_clicked_cb (Gtk.Button button) {
+        shadertoy.image_shader = current_shader_text;
+    }
+
+    void clear_clicked_cb (Gtk.Button button) {
+        textview.buffer.text = "";
     }
 }
