@@ -6,5 +6,6 @@
         <file>glowingstars.glsl</file>
         <file>mandelbrot.glsl</file>
         <file>neon.glsl</file>
+        <file>happyjumping.glsl</file>
     </gresource>
 </gresources>

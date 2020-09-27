@@ -17,7 +17,8 @@ public class Gtk4Demo.MainWindow : Gtk.ApplicationWindow {
             "/github/aeldemery/gtk4_shadertoy/mandelbrot.glsl",
             "/github/aeldemery/gtk4_shadertoy/neon.glsl",
             "/github/aeldemery/gtk4_shadertoy/cogs.glsl",
-            "/github/aeldemery/gtk4_shadertoy/glowingstars.glsl"
+            "/github/aeldemery/gtk4_shadertoy/glowingstars.glsl",
+            "/github/aeldemery/gtk4_shadertoy/happyjumping.glsl"
         };
 
         title = "Shadertoy :)";
