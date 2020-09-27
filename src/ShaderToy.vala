@@ -295,6 +295,8 @@ void main() {
             }
         } catch (ShaderError error) {
             critical (error.message);
+            this.error_set = true;
+            this.set_error (error);
             return;
         }
 
