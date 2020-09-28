@@ -365,12 +365,14 @@ void main() {
 
     protected override void unrealize () {
         this.make_current ();
+        GL.GLuint[] local_vao = {this.vao};
+        GL.GLuint[] local_buffer = {this.buffer};
         if (this.get_error () == null) {
             if (this.buffer != 0)
-                GL.glDeleteBuffers (1, { this.buffer });
+                GL.glDeleteBuffers (1, local_buffer);
 
             if (this.vao != 0)
-                GL.glDeleteVertexArrays (1, { this.vao });
+                GL.glDeleteVertexArrays (1, local_vao);
 
             if (this.program != 0)
                 GL.glDeleteProgram (this.program);
